@@ -1,0 +1,48 @@
+# Streamlit >= 1.51 supports custom light + dark themes.
+# Default appearance follows the browser/system. Visitors can switch
+# via the top-right app menu > Settings > Appearance.
+[theme]
+base = "light"
+font = "sans-serif"
+showSidebarBorder = true
+showWidgetBorder = true
+baseRadius = "0.625rem"
+
+[theme.light]
+primaryColor = "#801F3F"
+backgroundColor = "#FCF9FA"
+secondaryBackgroundColor = "#F5E9EC"
+textColor = "#21171B"
+borderColor = "#8D7780"
+linkColor = "#801F3F"
+
+[theme.light.sidebar]
+primaryColor = "#801F3F"
+backgroundColor = "#F5E9EC"
+secondaryBackgroundColor = "#FCF9FA"
+textColor = "#21171B"
+borderColor = "#8D7780"
+
+[theme.dark]
+primaryColor = "#B84868"
+backgroundColor = "#17141A"
+secondaryBackgroundColor = "#29212A"
+textColor = "#F7F1F3"
+borderColor = "#867380"
+linkColor = "#F1A7B9"
+
+[theme.dark.sidebar]
+primaryColor = "#B84868"
+backgroundColor = "#211B25"
+secondaryBackgroundColor = "#30212C"
+textColor = "#F7F1F3"
+borderColor = "#867380"
+
+[server]
+maxUploadSize = 3
+
+[client]
+showErrorDetails = "none"
+
+[browser]
+gatherUsageStats = false
