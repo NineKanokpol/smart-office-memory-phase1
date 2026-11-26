@@ -46,9 +46,11 @@ def sign_in(page, email, password):
 
 def visit(page, section):
     sidebar = page.get_by_test_id("stSidebar")
-    if not sidebar.get_by_text(section, exact=True).is_visible():
+    nav_label = {"ภาพรวม": "แดชบอร์ด", "โครงการ": "จัดการโครงการ", "เอกสาร": "เอกสารสำนักงาน",
+                 "ประวัติ": "ประวัติการใช้งาน"}.get(section, section)
+    if not sidebar.get_by_text(nav_label, exact=True).is_visible():
         page.get_by_test_id("stSidebarCollapsedControl").click()
-    sidebar.get_by_text(section, exact=True).click()
+    sidebar.get_by_text(nav_label, exact=True).click()
     # The heading confirms that Streamlit processed the menu change.
     heading = {"ภาพรวม": "ภาพรวมสำนักงาน", "แจ้งเตือน": "แจ้งเตือนกำหนดส่ง",
                "ประวัติ": "ประวัติการทำงาน"}.get(section, section)
@@ -169,13 +171,15 @@ def test_local_auth_crud_isolation_and_responsive_ui():
 
         visit(page, "เอกสาร")
         body = "เอกสารสำหรับทดสอบระบบ".encode()
-        page.get_by_label("ชื่อเอกสาร", exact=True).fill(f"บันทึกทดลอง {code}")
-        page.get_by_role("combobox", name="โครงการที่เกี่ยวข้อง").click()
+        page.get_by_role("button", name="อัปโหลดเอกสาร", exact=True).click()
+        upload = page.get_by_role("dialog")
+        upload.get_by_label("ชื่อเอกสาร", exact=True).fill(f"บันทึกทดลอง {code}")
+        upload.get_by_role("combobox", name="โครงการที่เกี่ยวข้อง").click()
         page.get_by_text(project_name, exact=True).click()
-        page.locator('input[type="file"]').set_input_files(
+        upload.locator('input[type="file"]').set_input_files(
             {"name": "เอกสารทดลอง.txt", "mimeType": "text/plain", "buffer": body}
         )
-        page.get_by_role("button", name="อัปโหลดเอกสาร", exact=True).click()
+        upload.get_by_role("button", name="อัปโหลดเอกสาร", exact=True).click()
         expect(page.get_by_text("บันทึกเอกสารแล้ว", exact=True)).to_be_visible()
         search = page.get_by_label("ค้นหาชื่อเอกสาร")
         search.fill("ผลการค้นหาที่ไม่มี")
@@ -210,12 +214,12 @@ def test_local_auth_crud_isolation_and_responsive_ui():
         print("PASS direct API RLS, private bucket, cross-account object access and project FK")
 
         visit(page, "ภาพรวม")
-        assert page.get_by_test_id("stMetricValue").all_text_contents() == ["1", "1", "1", "1", "1", "0"]
-        assert second.get_by_test_id("stMetricValue").all_text_contents() == ["0"] * 6
+        assert page.get_by_test_id("stMetricValue").all_text_contents() == ["1", "1", "1", "0", "1", "1", "0"]
+        assert second.get_by_test_id("stMetricValue").all_text_contents() == ["0"] * 7
         expect(page.get_by_role("heading", name="กิจกรรมล่าสุด")).to_be_visible()
         assert len(a.table("activity_logs").select("id").execute().data) == 6
         assert page.locator("body").evaluate("(element) => getComputedStyle(element).backgroundColor") == "rgb(252, 249, 250)"
-        assert second.locator("body").evaluate("(element) => getComputedStyle(element).backgroundColor") == "rgb(23, 20, 26)"
+        assert second.locator("body").evaluate("(element) => getComputedStyle(element).backgroundColor") == "rgb(19, 13, 22)"
         assert second.evaluate("document.documentElement.scrollWidth === innerWidth")
         sidebar = page.get_by_test_id("stSidebar")
         sidebar.get_by_role("button", name="ออกจากระบบ").click()
@@ -236,6 +240,8 @@ def test_local_auth_crud_isolation_and_responsive_ui():
         expect(page.get_by_text("ลบงานแล้ว")).to_be_visible()
 
         visit(page, "เอกสาร")
+        page.get_by_role("button", name="เตรียมดาวน์โหลด").click()
+        expect(page.get_by_role("link", name="ดาวน์โหลดไฟล์ต้นฉบับ")).to_be_visible()
         page.get_by_text("ลบเอกสาร", exact=True).click()
         delete = page.get_by_role("button", name="ลบเอกสารถาวร")
         expect(delete).to_be_disabled()

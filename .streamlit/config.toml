@@ -1,12 +1,17 @@
-# Streamlit >= 1.51 supports custom light + dark themes.
-# Default appearance follows the browser/system. Visitors can switch
-# via the top-right app menu > Settings > Appearance.
 [theme]
 base = "light"
-font = "sans-serif"
-showSidebarBorder = true
+font = "Noto Sans Thai, sans-serif"
+headingFont = "Noto Sans Thai, sans-serif"
+headingFontSizes = ["2rem", "1.375rem", "1.125rem", "1rem", "0.875rem", "0.8125rem"]
+showSidebarBorder = false
 showWidgetBorder = true
-baseRadius = "0.625rem"
+baseRadius = "0.875rem"
+buttonRadius = "full"
+
+[[theme.fontFaces]]
+family = "Noto Sans Thai"
+url = "app/static/NotoSansThai.ttf"
+weight = "100 900"
 
 [theme.light]
 primaryColor = "#801F3F"
@@ -24,15 +29,15 @@ textColor = "#21171B"
 borderColor = "#8D7780"
 
 [theme.dark]
-primaryColor = "#B84868"
-backgroundColor = "#17141A"
+primaryColor = "#9E3454"
+backgroundColor = "#130D16"
 secondaryBackgroundColor = "#29212A"
 textColor = "#F7F1F3"
 borderColor = "#867380"
-linkColor = "#F1A7B9"
+linkColor = "#EBA0B9"
 
 [theme.dark.sidebar]
-primaryColor = "#B84868"
+primaryColor = "#9E3454"
 backgroundColor = "#211B25"
 secondaryBackgroundColor = "#30212C"
 textColor = "#F7F1F3"
@@ -40,6 +45,7 @@ borderColor = "#867380"
 
 [server]
 maxUploadSize = 3
+enableStaticServing = true
 
 [client]
 showErrorDetails = "none"

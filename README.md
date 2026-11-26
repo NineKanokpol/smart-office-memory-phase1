@@ -9,7 +9,11 @@
 
 ใช้บัญชีและข้อมูลสมมติระหว่างสาธิต ตัวอย่างไฟล์อยู่ใน `samples/` ผลทดสอบจริงและสถานะเผยแพร่อยู่ใน [TEST_REPORT.md](TEST_REPORT.md) และ [PROJECT_STATUS.md](PROJECT_STATUS.md)
 
-ซอร์สโค้ดอยู่บน branch `main` ของ [GitHub repository สาธารณะ](https://github.com/NineKanokpol/smart-office-memory-phase1) เว็บไซต์สาธารณะอยู่ระหว่างตั้งค่า Supabase Cloud
+ซอร์สโค้ดอยู่บน branch `main` ของ [GitHub repository สาธารณะ](https://github.com/NineKanokpol/smart-office-memory-phase1) เปิด [เว็บ Smart Office Memory](https://smart-office-memory.streamlit.app/) ได้โดยตรง เว็บขอให้เข้าสู่ระบบก่อนแสดงข้อมูลสำนักงาน
+
+## Burgundy Liquid Glass
+
+แดชบอร์ดแสดงยอดจริง สถานะโครงการ ความคืบหน้าจากงาน และกำหนดส่ง เลือก Light, Dark หรือ System จากเมนู Settings ของ Streamlit หรือใช้พื้นผิวทึบจากเมนูธีมและบัญชี ดู [คู่มือหน้าจอ](UI_UX_GUIDE.md)
 
 ## เริ่มต้น
 

@@ -13,7 +13,7 @@
 | งาน | เพิ่มได้และแก้สถานะหรือผู้รับผิดชอบได้ | แก้ทุกช่องและลบพร้อมยืนยัน |
 | เอกสาร | อัปโหลด ดาวน์โหลด ค้น ลบ | เพิ่มแก้ชื่อและย้ายโครงการ ตรวจไฟล์เข้มขึ้น ใช้ลิงก์ดาวน์โหลดชั่วคราว |
 | ประวัติ | แอปเขียนล็อกแยกจากคำขอหลัก | PostgreSQL บันทึกพร้อมการเปลี่ยนข้อมูล |
-| UI | ธีมแดงเลือดหมูสองโหมด | ใช้การ์ด ฟอร์ม และธีม native ปรับขอบฟอร์มและทดสอบจอมือถือ |
+| UI | ธีมแดงเลือดหมูสองโหมด | Burgundy Liquid Glass, Noto Sans Thai, กราฟจากข้อมูลจริง, แถบลอย และตัวเลือกพื้นผิวทึบ |
 
 ## สถานะตามขั้นตอน
 
@@ -21,13 +21,13 @@
 | --- | --- | --- |
 | 1 ตรวจ workspace | เสร็จ | ตรวจไฟล์ config, source, schema, dependencies และชุดทดสอบเดิม |
 | 2 เตรียม Python | เสร็จ | CPython 3.12.16, compileall, dependency check และ unit tests |
-| 3 Supabase | ผ่าน local | SQL รันซ้ำได้, private bucket, ยืนยันอีเมล และ RLS บน Docker · cloud รอสิทธิ์เข้าถึง |
+| 3 Supabase | เปิดใช้งานบน Free | เปิด RLS 4 ตาราง, Storage 3 policies และ private bucket ยังคง Confirm email และใช้ SMTP ค่าเริ่มต้น |
 | 4 พัฒนา | เสร็จใน workspace | Dashboard, Auth, โครงการ, งาน, เอกสาร, ประวัติ และธีม |
 | 5 ทดสอบ local | ผ่านตามรายงาน | Playwright ใช้เบราว์เซอร์จริงและข้อมูลสมมติ |
-| 6 ความปลอดภัย | ผ่าน local ตามรายงาน | การทดสอบ A/B และผู้ใช้ที่ยังไม่เข้าสู่ระบบ · ตรวจซ้ำหลังตั้ง cloud |
+| 6 ความปลอดภัย | ผ่านตามขอบเขตทดสอบ | ทดสอบ A/B และผู้ใช้ที่ยังไม่เข้าสู่ระบบบน local และ Cloud รวม Storage |
 | 7 GitHub | เสร็จ | Push ไปยัง [repository สาธารณะ](https://github.com/NineKanokpol/smart-office-memory-phase1) และยืนยันว่า branch หลักคือ `main` |
-| 8 Public deployment | รอตั้งรหัสฐานข้อมูล | สร้างองค์กร Supabase แผน Free แล้ว เตรียมฟอร์มโปรเจกต์ใน Asia-Pacific และฟอร์ม Streamlit ด้วย Python 3.12 รอเจ้าของตั้งรหัส PostgreSQL และกดสร้างโปรเจกต์ |
-| 9 Public E2E | NOT TESTED | ต้องมี URL และ backend cloud ที่ตั้งค่าแล้ว |
+| 8 Public deployment | เปิดใช้งาน | ใช้แอป Streamlit Community Cloud เดิม, Python 3.12 และ [โดเมน smart-office-memory](https://smart-office-memory.streamlit.app/) |
+| 9 Public E2E | ผ่านเส้นทางหลัก · รอการส่งอีเมล | ทดสอบ CRUD, Dashboard, A/B, Storage และ reboot บน Cloud การรับอีเมลยืนยันจากกล่องทดสอบภายนอกยังรอ SMTP |
 | 10 เอกสาร | เสร็จ | คู่มือภาษาไทยและ [TEST_REPORT.md](TEST_REPORT.md) |
 
-Python, Supabase local และ Playwright รันด้วยข้อมูลสมมติ ใช้ผล local เพื่อยืนยันพฤติกรรมของโค้ด ส่วนค่าบนโปรเจกต์ cloud และการส่งอีเมลผ่าน SMTP ของบริการต้องทดสอบในสภาพแวดล้อมนั้น
+แอปใช้บริการ Free Tier บัญชีและเอกสารที่ใช้ทดสอบเป็นข้อมูลสมมติ ผลทดสอบและข้อจำกัดของ SMTP อยู่ใน [TEST_REPORT.md](TEST_REPORT.md)

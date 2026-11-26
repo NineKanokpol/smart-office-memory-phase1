@@ -16,7 +16,7 @@ def contrast(first, second):
     return (high + 0.05) / (low + 0.05)
 
 
-@pytest.mark.parametrize(("mode", "accent"), [("light", "#801F3F"), ("dark", "#B84868")])
+@pytest.mark.parametrize(("mode", "accent"), [("light", "#801F3F"), ("dark", "#9E3454")])
 def test_dual_theme_and_main_contrast(mode, accent):
     theme = tomllib.loads((ROOT / ".streamlit/config.toml").read_text())["theme"]
     assert theme["base"] == "light"

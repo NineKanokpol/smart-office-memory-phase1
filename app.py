@@ -15,6 +15,7 @@ from postgrest.exceptions import APIError
 from supabase import create_client
 
 from file_utils import extract_document
+from ui import workspace
 
 APP_NAME = "Smart Office Memory | Phase 1"
 BUCKET = "office-docs"
@@ -24,7 +25,7 @@ PROJECT_STATUSES = ["รอเริ่ม", "กำลังดำเนิน�
 CLOSED_STATUSES = {"เสร็จแล้ว", "ยกเลิก"}
 PAGE_SIZE = 100
 
-st.set_page_config(page_title=APP_NAME, page_icon="📁", layout="wide")
+st.set_page_config(page_title=APP_NAME, layout="wide")
 
 
 def public_supabase_key(key: str) -> bool:
@@ -82,15 +83,21 @@ def valid_email(email: str) -> bool:
 
 
 def login_screen(client):
+    with st.container(key="office_login", width=490):
+        workspace.brand(mark_only=True)
+        login_panel(client)
+
+
+def login_panel(client):
     st.title("Smart Office Memory")
     st.caption("ระบบสำนักงานดิจิทัลสำหรับจัดการโครงการ เอกสาร และงาน")
-    st.info("พื้นที่สาธิตสำหรับบัญชีและเอกสารสมมติ")
+    st.caption("พื้นที่สาธิตสำหรับบัญชีและเอกสารสมมติ")
     login, signup = st.tabs(["เข้าสู่ระบบ", "สมัครบัญชี"])
     with login:
         with st.form("login_form", clear_on_submit=True):
             email = st.text_input("อีเมล", max_chars=254)
             password = st.text_input("รหัสผ่าน", type="password", max_chars=128)
-            submit_login = st.form_submit_button("เข้าสู่ระบบ", type="primary")
+            submit_login = st.form_submit_button("เข้าสู่ระบบ", type="primary", width="stretch")
         if submit_login:
             email = email.strip()
             if not valid_email(email) or not password:
@@ -106,12 +113,12 @@ def login_screen(client):
                     st.error("เข้าสู่ระบบไม่สำเร็จ ตรวจสอบอีเมล รหัสผ่าน และการยืนยันอีเมล")
 
     with signup:
-        st.caption("ใช้อีเมลทดลองที่เปิดรับลิงก์ยืนยันได้")
+        st.caption("ใช้อีเมลทดลองที่รับลิงก์ยืนยันได้ การส่งอีเมลขึ้นอยู่กับผู้ให้บริการของโครงการ")
         with st.form("signup_form", clear_on_submit=True):
             email = st.text_input("อีเมลสำหรับสมัคร", max_chars=254)
             password = st.text_input("ตั้งรหัสผ่าน (อย่างน้อย 8 ตัวอักษร)", type="password", max_chars=128)
             consent = st.checkbox("ฉันจะใช้เฉพาะข้อมูลสมมติ")
-            submit_signup = st.form_submit_button("สมัครบัญชี", type="primary")
+            submit_signup = st.form_submit_button("สมัครบัญชี", type="primary", width="stretch")
         if submit_signup:
             email = email.strip()
             if not valid_email(email) or len(password) < 8 or not consent:
@@ -156,10 +163,13 @@ def task_groups(tasks, today):
 
 
 def task_table(tasks, project_names):
+    today = datetime.now(BANGKOK).date().isoformat()
     st.dataframe([
         {"งาน": task["title"], "โครงการ": project_names.get(task["project_id"], "–"),
          "ผู้รับผิดชอบ": task["assignee"] or "–", "กำหนดส่ง": task["due_date"],
-         "สถานะ": task["status"]}
+         "สถานะ": task["status"],
+         "ความเร่งด่วน": ("เกินกำหนด" if task["due_date"] < today else "ครบกำหนดวันนี้")
+         if task["due_date"] and task["due_date"] <= today and task["status"] not in CLOSED_STATUSES else "–"}
         for task in tasks
     ], hide_index=True, width="stretch")
 
@@ -180,31 +190,58 @@ def show_activity(client, limit):
 
 def dashboard(client, projects, docs, tasks, project_names):
     st.title("ภาพรวมสำนักงาน")
-    overdue, due_today, upcoming = task_groups(tasks, datetime.now(BANGKOK).date())
-    pending = sum(task["status"] not in CLOSED_STATUSES for task in tasks)
+    now = datetime.now(BANGKOK)
+    overdue, due_today, upcoming = task_groups(tasks, now.date())
+    deadlines = sorted(due_today + upcoming, key=lambda task: task["due_date"])
+    closed = sum(task["status"] == "เสร็จแล้ว" for task in tasks)
+    active = sum(task["status"] not in CLOSED_STATUSES for task in tasks)
     metrics = [
-        ("โครงการทั้งหมด", len(projects)), ("เอกสารทั้งหมด", len(docs)), ("งานทั้งหมด", len(tasks)),
-        ("งานที่ยังไม่เสร็จ", pending), ("ใกล้ครบกำหนด", len(due_today) + len(upcoming)),
-        ("เกินกำหนด", len(overdue)),
+        ("เอกสารทั้งหมด", len(docs), "description"),
+        ("โครงการทั้งหมด", len(projects), "folder_open"),
+        ("งานที่ยังไม่เสร็จ", active, "pending_actions"),
+        ("งานเสร็จแล้ว", closed, "task_alt"),
+        ("งานทั้งหมด", len(tasks), "checklist"),
+        ("ใกล้ครบกำหนด", len(deadlines), "calendar_today"),
+        ("เกินกำหนด", len(overdue), "event_busy"),
     ]
-    for start in (0, 3):
-        for column, (label, value) in zip(st.columns(3), metrics[start:start + 3]):
-            column.metric(label, value, border=True)
-    if not (projects or docs or tasks):
-        st.info("เลือกโครงการในแถบเมนูเพื่อสร้างโครงการแรก")
-    st.subheader("งานใกล้ครบกำหนด")
-    st.caption("งานครบกำหนดวันนี้และภายใน 3 วัน")
-    if due_today or upcoming:
-        task_table(sorted(due_today + upcoming, key=lambda task: task["due_date"]), project_names)
-    else:
-        st.caption("ไม่มีงานใกล้ครบกำหนด")
-    st.subheader("งานเกินกำหนด")
-    if overdue:
-        task_table(sorted(overdue, key=lambda task: task["due_date"]), project_names)
-    else:
-        st.caption("ไม่มีงานเกินกำหนด")
-    st.subheader("กิจกรรมล่าสุด")
-    show_activity(client, 10)
+    with st.container(key="office_kpis"):
+        for col, (label, value, icon) in zip(st.columns(4), metrics[:4]):
+            col.metric(label, value, icon=f":material/{icon}:")
+        with st.container(key="office_kpi_secondary"):
+            for col, (label, value, icon) in zip(st.columns(3), metrics[4:]):
+                col.metric(label, value, icon=f":material/{icon}:")
+    with st.container(horizontal=True, gap="small"):
+        for label, icon, target in [
+            ("จัดการโครงการ", "create_new_folder", "โครงการ"),
+            ("เปิดเอกสาร", "upload_file", "เอกสาร"),
+            ("ดูงานทั้งหมด", "checklist", "ติดตามงาน"),
+        ]:
+            st.button(label, icon=f":material/{icon}:", key=f"quick_{target}",
+                      on_click=workspace.navigate, args=(target,))
+    with st.container(key="office_panel", border=True):
+        st.subheader("ความคืบหน้าโครงการ")
+        workspace.project_overview(projects, tasks, PROJECT_STATUSES)
+    with st.container(key="office_deadlines", border=True):
+        st.subheader("งานใกล้ครบกำหนด")
+        st.caption("วันนี้และภายใน 3 วัน")
+        if deadlines:
+            workspace.task_list(deadlines[:8], project_names, now.date())
+        else:
+            st.caption("ไม่มีงานใกล้ครบกำหนด")
+        if overdue:
+            st.markdown("**งานเกินกำหนด**")
+            workspace.task_list(sorted(overdue, key=lambda task: task["due_date"])[:8], project_names, now.date())
+    left, right = st.columns(2)
+    with left:
+        st.subheader("เอกสารล่าสุด")
+        if docs:
+            st.dataframe([{"เอกสาร": doc["title"], "ประเภท": doc["file_type"].lstrip(".").upper()}
+                          for doc in docs[:5]], hide_index=True, width="stretch")
+        else:
+            st.caption("ยังไม่มีเอกสาร")
+    with right:
+        st.subheader("กิจกรรมล่าสุด")
+        show_activity(client, 6)
     if tasks:
         with st.expander("งานล่าสุด"):
             task_table(tasks[:30], project_names)
@@ -222,8 +259,10 @@ def apply_change(query, message):
     finish(message)
 
 
-def projects_page(client, projects, docs):
+def projects_page(client, projects, docs, tasks):
     st.title("โครงการ")
+    if projects:
+        workspace.project_cards(projects, tasks)
     with st.form("new_project"):
         st.subheader("เพิ่มโครงการ")
         name = st.text_input("ชื่อโครงการ", max_chars=150)
@@ -322,7 +361,14 @@ def tasks_page(client, project_names, tasks):
         st.info("ยังไม่มีงาน")
         return
     st.subheader("งานทั้งหมด")
-    task_table(tasks, project_names)
+    project_filter = st.selectbox("กรองตามโครงการ", [None, *project_names],
+                                  format_func=lambda key: "ทุกโครงการ" if key is None else project_names[key])
+    visible_tasks = [task for task in tasks if project_filter is None or task["project_id"] == project_filter]
+    if not visible_tasks:
+        st.info("ยังไม่มีงานในโครงการนี้")
+        return
+    workspace.task_list(visible_tasks, project_names, datetime.now(BANGKOK).date())
+    tasks = visible_tasks
     by_id = {task["id"]: task for task in tasks}
     selected = st.selectbox("เลือกงานเพื่อดูหรือแก้ไข", list(by_id),
                             format_func=lambda identifier: f"{by_id[identifier]['title']} (#{identifier})")
@@ -367,11 +413,9 @@ def upload_document(client, user_id, title, project_id, filename, payload):
     finish("บันทึกเอกสารแล้ว" if content.strip() else "บันทึกเอกสารแล้ว ไฟล์นี้ไม่มีข้อความที่อ่านได้")
 
 
-def documents_page(client, user_id, project_names, docs):
-    st.title("เอกสาร")
-    options = {None: "ไม่ผูกกับโครงการ", **project_names}
+@st.dialog("อัปโหลดเอกสาร", width="medium")
+def document_upload_dialog(client, user_id, options):
     with st.form("upload_document", clear_on_submit=True):
-        st.subheader("อัปโหลดเอกสาร")
         title = st.text_input("ชื่อเอกสาร", max_chars=150)
         project = st.selectbox("โครงการที่เกี่ยวข้อง", list(options), format_func=options.__getitem__)
         uploaded = st.file_uploader("ไฟล์ PDF, DOCX หรือ TXT ขนาดไม่เกิน 3 MB", type=["pdf", "docx", "txt"])
@@ -380,12 +424,26 @@ def documents_page(client, user_id, project_names, docs):
                 st.warning("กรอกชื่อเอกสารและเลือกไฟล์")
             else:
                 with st.spinner("กำลังตรวจไฟล์และอัปโหลด"):
-                    upload_document(client, user_id, title.strip(), project, uploaded.name, uploaded.getvalue())
+                    try:
+                        upload_document(client, user_id, title.strip(), project, uploaded.name, uploaded.getvalue())
+                    except Exception:
+                        st.error("อัปโหลดไม่สำเร็จ กรุณาลองอีกครั้ง")
+
+
+def documents_page(client, user_id, project_names, docs):
+    st.title("เอกสาร")
+    options = {None: "ไม่ผูกกับโครงการ", **project_names}
+    if st.button("อัปโหลดเอกสาร", icon=":material/upload_file:", type="primary"):
+        document_upload_dialog(client, user_id, options)
     if not docs:
         st.info("ยังไม่มีเอกสาร")
         return
-    keyword = st.text_input("ค้นหาชื่อเอกสาร").strip().casefold()
-    filtered = [doc for doc in docs if keyword in doc["title"].casefold()]
+    with st.container(horizontal=True, key="document_filters"):
+        keyword = st.text_input("ค้นหาชื่อเอกสาร").strip().casefold()
+        format_filter = st.selectbox("ประเภทไฟล์", ["ทั้งหมด", ".pdf", ".docx", ".txt"],
+                                     format_func=lambda value: value.lstrip(".").upper() if value.startswith(".") else value)
+    filtered = [doc for doc in docs if keyword in doc["title"].casefold()
+                and (format_filter == "ทั้งหมด" or doc["file_type"] == format_filter)]
     if not filtered:
         st.info("ไม่พบเอกสารที่ตรงกับคำค้น")
         return
@@ -398,6 +456,7 @@ def documents_page(client, user_id, project_names, docs):
     selected = st.selectbox("เลือกเอกสารเพื่อดูหรือแก้ไข", list(by_id),
                             format_func=lambda identifier: f"{by_id[identifier]['title']} (#{identifier})")
     doc = by_id[selected]
+    st.badge(doc["file_type"].lstrip(".").upper(), icon=":material/description:")
     with st.form(f"edit_document_{selected}"):
         title = st.text_input("ชื่อเอกสาร", value=doc["title"], max_chars=150)
         project = st.selectbox("โครงการที่เกี่ยวข้อง", list(options), format_func=options.__getitem__,
@@ -424,7 +483,7 @@ def documents_page(client, user_id, project_names, docs):
             st.caption("ลิงก์ใช้ได้ 60 วินาที")
         except Exception:
             st.error("เปิดไฟล์ต้นฉบับไม่สำเร็จ กรุณาลองใหม่")
-    with st.expander("ลบเอกสาร"):
+    with st.expander("ลบเอกสาร", key=f"office_delete_document_{selected}"):
         confirm = st.checkbox("ยืนยันการลบไฟล์และข้อมูลเอกสาร", key=f"delete_document_{selected}")
         if st.button("ลบเอกสารถาวร", disabled=not confirm):
             with st.spinner("กำลังลบไฟล์และข้อมูลเอกสาร"):
@@ -448,18 +507,16 @@ def reminder_page(tasks, project_names):
 
 
 def main():
+    workspace.apply_theme()
     client, user = start_client()
     if user is None:
         login_screen(client)
         return
 
+    section = st.session_state.get("section", "ภาพรวม")
     with st.sidebar:
-        st.title("สำนักงานดิจิทัล")
-        st.caption(user.email or "บัญชีทดลอง")
-        section = st.radio("เมนูหลัก", [
-            "ภาพรวม", "โครงการ", "ติดตามงาน", "เอกสาร", "แจ้งเตือน", "ประวัติ",
-        ])
-        if st.button("ออกจากระบบ"):
+        workspace.sidebar(section)
+        if st.button("ออกจากระบบ", icon=":material/logout:", width="stretch"):
             try:
                 client.auth.sign_out({"scope": "local"})
             except Exception:
@@ -467,10 +524,14 @@ def main():
             st.session_state.clear()
             st.rerun()
 
+    workspace.toolbar(section, datetime.now(BANGKOK))
     notice = st.session_state.pop("notice", None)
     if notice:
         st.success(notice)
     try:
+        if section == "ตั้งค่า":
+            workspace.settings(user)
+            return
         if section == "ประวัติ":
             st.title("ประวัติการทำงาน")
             show_activity(client, 100)
@@ -480,12 +541,12 @@ def main():
             project_names = {project["id"]: project["name"] for project in projects}
             if section in {"ภาพรวม", "โครงการ", "เอกสาร"}:
                 docs = fetch_rows(client, "documents", "id,project_id,title,original_name,file_type,storage_path")
-            if section in {"ภาพรวม", "ติดตามงาน", "แจ้งเตือน"}:
+            if section in {"ภาพรวม", "โครงการ", "ติดตามงาน", "แจ้งเตือน"}:
                 tasks = fetch_rows(client, "tasks", "id,project_id,title,assignee,due_date,status")
         if section == "ภาพรวม":
             dashboard(client, projects, docs, tasks, project_names)
         elif section == "โครงการ":
-            projects_page(client, projects, docs)
+            projects_page(client, projects, docs, tasks)
         elif section == "ติดตามงาน":
             tasks_page(client, project_names, tasks)
         elif section == "เอกสาร":
