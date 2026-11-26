@@ -2,6 +2,8 @@
 
 วันที่ 26 พฤศจิกายน 2569 · CPython 3.12.16 · Streamlit 1.67.0 · Supabase CLI 3.4.0 พร้อม PostgreSQL, Auth, Storage และ Mailpit ใน Docker · Chromium ผ่าน Playwright
 
+รันชุดทดสอบรวมบน localhost ซ้ำหลัง push ครั้งแรก ได้ผล 24 ผ่าน รวม 23 unit/configuration และ 1 เส้นทาง Browser E2E พร้อมการตรวจ API ของสองบัญชี
+
 ## ผลบนเครื่อง
 
 | กลุ่ม | ผล | สิ่งที่ทดสอบ |

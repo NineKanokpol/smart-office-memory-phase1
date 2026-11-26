@@ -26,7 +26,7 @@
 | 5 ทดสอบ local | ผ่านตามรายงาน | Playwright ใช้เบราว์เซอร์จริงและข้อมูลสมมติ |
 | 6 ความปลอดภัย | ผ่าน local ตามรายงาน | การทดสอบ A/B และผู้ใช้ที่ยังไม่เข้าสู่ระบบ · ตรวจซ้ำหลังตั้ง cloud |
 | 7 GitHub | เสร็จ | Push ไปยัง [repository สาธารณะ](https://github.com/NineKanokpol/smart-office-memory-phase1) และยืนยันว่า branch หลักคือ `main` |
-| 8 Public deployment | รอเข้าถึง Supabase Cloud | เปิดฟอร์ม Streamlit Community Cloud ได้ ตรวจว่า URL ที่เลือกว่างและเลือก Python 3.12 แล้ว Supabase ยังต้องลงชื่อเข้าใช้ให้ถึง Dashboard ก่อนสร้าง Free Project และตั้งค่า secrets |
+| 8 Public deployment | รอตั้งรหัสฐานข้อมูล | สร้างองค์กร Supabase แผน Free แล้ว เตรียมฟอร์มโปรเจกต์ใน Asia-Pacific และฟอร์ม Streamlit ด้วย Python 3.12 รอเจ้าของตั้งรหัส PostgreSQL และกดสร้างโปรเจกต์ |
 | 9 Public E2E | NOT TESTED | ต้องมี URL และ backend cloud ที่ตั้งค่าแล้ว |
 | 10 เอกสาร | เสร็จ | คู่มือภาษาไทยและ [TEST_REPORT.md](TEST_REPORT.md) |
 
