@@ -68,7 +68,7 @@ def settings(user):
         st.text(user.email or "บัญชีทดลอง")
     with st.container(border=True):
         st.subheader("การแสดงผล")
-        st.caption("เลือก Light, Dark หรือ System ผ่านเมนู ⋮ → Settings → Appearance")
+        st.caption("เปิดเมนู ⋮ แล้วเลือก System, Light หรือ Dark ในกลุ่ม Theme")
         st.toggle("ใช้พื้นผิวทึบและลดความโปร่งใส", key="solid_surfaces")
 
 
