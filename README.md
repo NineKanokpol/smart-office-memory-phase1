@@ -9,6 +9,8 @@
 
 ใช้บัญชีและข้อมูลสมมติระหว่างสาธิต ตัวอย่างไฟล์อยู่ใน `samples/` ผลทดสอบจริงและสถานะเผยแพร่อยู่ใน [TEST_REPORT.md](TEST_REPORT.md) และ [PROJECT_STATUS.md](PROJECT_STATUS.md)
 
+ซอร์สโค้ดอยู่บน branch `main` ของ [GitHub repository สาธารณะ](https://github.com/NineKanokpol/smart-office-memory-phase1) เว็บไซต์สาธารณะอยู่ระหว่างตั้งค่า Supabase Cloud
+
 ## เริ่มต้น
 
 1. ทำตาม [คู่มือติดตั้ง](SETUP_GUIDE.md) เพื่อเตรียม Python 3.12, Supabase และตั้งค่าแอป
