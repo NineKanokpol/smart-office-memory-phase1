@@ -16,6 +16,7 @@
 | Storage | PASS | Bucket ปฏิเสธ public URL และปฏิเสธดาวน์โหลดหรือสร้าง signed URL ข้ามบัญชี A ดาวน์โหลดต้นฉบับได้ |
 | ธีมและจอ | PASS | System ตามค่าที่ Chromium จำลองเป็น Light บน 1440×900 และ Dark บน 390×844 รวมค่าสีพื้นหลังและความกว้าง mobile |
 | Dependency advisories | PASS | `pip-audit -r requirements.txt` รายงานว่าไม่พบช่องโหว่ที่รู้จักในขณะตรวจ |
+| ตรวจไฟล์ก่อน commit | PASS | `.env`, `.env.local` และ `.streamlit/secrets.toml` ตรงกับกฎ ignore ตรวจชื่อไฟล์ที่ stage และรูปแบบ credential ที่พบบ่อย โดยไม่มีไฟล์ที่ตรงรูปแบบ |
 | รีสตาร์ต Streamlit | PASS | หยุดและเริ่มกระบวนการ Streamlit ใหม่บนพอร์ต 8502 จากนั้นเข้าสู่ระบบ เห็นเอกสาร 2 รายการ และอ่านต้นฉบับจาก Storage ได้ตรงไบต์ |
 | อัปโหลด PDF/DOCX ผ่าน UI | PASS | อัปโหลด DOCX ที่มีข้อความและ PDF ตัวอย่างที่ไม่มีชั้นข้อความ ตรวจไฟล์ใน Storage |
 | อุปกรณ์มือถือจริงและ WCAG ทั้งระบบ | NOT TESTED | ตรวจ Chromium mobile emulation และทดสอบคอนทราสต์ของข้อความ ลิงก์ ขอบฟอร์ม และปุ่มหลักตามค่าธีม |
